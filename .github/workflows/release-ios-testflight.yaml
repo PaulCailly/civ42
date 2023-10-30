@@ -14,10 +14,9 @@ on:
         required: true
         type: string
 
-# ToDo: adapt names
 env:
   # used for uploading the app to a GitHub release
-  GAME_EXECUTABLE_NAME: bevy_game
+  GAME_EXECUTABLE_NAME: civ42
   XCODE_PROJECT: mobile
   MOBILE_DIRECTORY: mobile
 
@@ -68,7 +67,7 @@ jobs:
         run: |
           cd ${{ env.MOBILE_DIRECTORY }}
           xcodebuild PROVISIONING_PROFILE=${{ steps.profile.outputs.uuid }} -scheme ${{ env.XCODE_PROJECT }} clean archive -archivePath "Actions" -configuration Release -arch arm64
-      - name: export ipa
+      - name: Export ipa
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
         run: |
@@ -81,7 +80,7 @@ jobs:
         run: |
           mkdir -p ~/private_keys
           echo -n "$API_KEY_BASE64" | base64 --decode --output ~/private_keys/AuthKey_${{ secrets.IOS_APPSTORE_API_KEY_ID }}.p8
-      - name: Upload to testflight
+      - name: Upload to TestFlight
         run: |
           xcrun altool --validate-app -f ${{ runner.temp }}/export/${{ env.XCODE_PROJECT }}.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
           xcrun altool --upload-app -f ${{ runner.temp }}/export/${{ env.XCODE_PROJECT }}.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
